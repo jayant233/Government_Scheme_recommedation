@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Government Schemes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="adminTitle">Admin Management Portal</h1>
+        <p class="subtitle">The console application's SchemeDAO contains these CRUD operations.</p>
+
+        <div class="admin-actions">
+            <button id="addSchemeBtn" class="btn action-btn">Add New Scheme</button>
+            <button id="updateSchemeBtn" class="btn action-btn secondary">Update Scheme</button>
+            <button id="deleteSchemeBtn" class="btn action-btn danger">Delete Scheme</button>
+            <button id="viewSchemesBtn" class="btn action-btn info">View All Schemes</button>
+        </div>
+
+        <div class="nav-link">
+            <a href="index.html" id="homeLink">Return to User Homepage</a>
+        </div>
+        
+        <div id="adminOutput" style="margin-top: 20px; text-align: left;"></div>
+    </div>
+    
+    <script>
+        document.getElementById('viewSchemesBtn').addEventListener('click', function() {
+            fetch('http://localhost:8080/api/schemes')
+                .then(response => {
+                    if (!response.ok) throw new Error("Server endpoint not found");
+                    return response.json();
+                })
+                .then(data => {
+                    const output = document.getElementById('adminOutput');
+                    output.innerHTML = '<h2>All Schemes in Database</h2><ul>' + 
+                        data.map(scheme => `<li>${scheme}</li>`).join('') + 
+                        '</ul>';
+                })
+                .catch(err => {
+                    // Fallback to local storage if API is simplified
+                    let mockSchemes = JSON.parse(localStorage.getItem('mockSchemes') || '[]');
+                    const output = document.getElementById('adminOutput');
+                    output.innerHTML = '<h2>Mock Schemes (Local Storage)</h2><ul>' + 
+                        (mockSchemes.length > 0 ? mockSchemes.map(s => `<li>${s}</li>`).join('') : '<li>No schemes added yet.</li>') + 
+                        '</ul><p style="color:red; font-size: 0.8em;">(Server fetch failed. Using frontend-only logic for demonstration)</p>';
+                });
+        });
+
+        document.getElementById('addSchemeBtn').addEventListener('click', function() {
+            const schemeName = prompt("Enter new scheme name:");
+            if (schemeName) {
+                let schemes = JSON.parse(localStorage.getItem('mockSchemes') || '[]');
+                schemes.push(schemeName);
+                localStorage.setItem('mockSchemes', JSON.stringify(schemes));
+                alert(`Scheme "${schemeName}" added to local storage.`);
+            }
+        });
+
+        document.getElementById('updateSchemeBtn').addEventListener('click', function() {
+            alert("Update Scheme clicked (demonstration only)");
+        });
+
+        document.getElementById('deleteSchemeBtn').addEventListener('click', function() {
+            alert("Delete Scheme clicked (demonstration only)");
+        });
+    </script>
+</body>
+</html>

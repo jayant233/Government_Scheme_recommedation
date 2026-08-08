@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Scheme Recommendation System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="pageTitle">Government Scheme Recommendation System</h1>
+        <p class="subtitle">Enter your personal details below to check scheme eligibility</p>
+
+        <form id="recommendationForm" action="results.html" method="GET">
+            
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age (Years):</label>
+                <input type="number" id="age" name="age" placeholder="Enter your age" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="income">Annual Family Income (Rs.):</label>
+                <input type="number" id="income" name="income" placeholder="Enter annual income" required>
+            </div>
+
+            <div class="form-group">
+                <label for="occupation">Occupation:</label>
+                <select id="occupation" name="occupation" required>
+                    <option value="">Select Occupation</option>
+                    <option value="Farmer">Farmer</option>
+                    <option value="Student">Student</option>
+                    <option value="Self-Employed">Self-Employed</option>
+                    <option value="Unemployed">Unemployed</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Social Category:</label>
+                <select id="category" name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="General">General</option>
+                    <option value="OBC">OBC</option>
+                    <option value="SC">SC</option>
+                    <option value="ST">ST</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="state">State / UT:</label>
+                <select id="state" name="state" required>
+                    <option value="">Select State</option>
+                    <option value="All India (Central)">All India (Central)</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Karnataka">Karnataka</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn">Check Eligible Schemes</button>
+        </form>
+
+        <div class="nav-link">
+            <a href="admin.html" id="adminLink">Go to Admin Portal</a>
+        </div>
+        
+        <div id="resultsArea" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        document.getElementById('recommendationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = new URLSearchParams(formData);
+            
+            fetch('http://localhost:8080/api/recommend', {
+                method: 'POST',
+                body: data
+            })
+            .then(response => response.json())
+            .then(schemes => {
+                const resultsArea = document.getElementById('resultsArea');
+                resultsArea.innerHTML = '<h2>Eligible Schemes:</h2>';
+                
+                if (schemes.length === 0) {
+                    resultsArea.innerHTML += '<p>No schemes found based on your criteria.</p>';
+                } else {
+                    const ul = document.createElement('ul');
+                    schemes.forEach(scheme => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${scheme.name}</strong><br>${scheme.description}`;
+                        ul.appendChild(li);
+                    });
+                    resultsArea.appendChild(ul);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching recommendations:', error);
+                document.getElementById('resultsArea').innerHTML = '<p style="color:red;">Error fetching recommendations. Please try again later.</p>';
+            });
+        });
+    </script>
+</body>
+</html>
