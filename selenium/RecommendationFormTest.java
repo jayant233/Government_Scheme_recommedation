@@ -9,7 +9,7 @@ public class RecommendationFormTest {
     public static void main(String[] args) {
         WebDriver driver = new ChromeDriver();
         try {
-            String homeUrl = "file:///C:/Users/jay23/Desktop/GovernmentSchemeRecommendationSystem/web/index.html";
+            String homeUrl = "file:///C:/Users/jay23/Desktop/mainGR/web/index.html";
             driver.get(homeUrl);
             driver.findElement(By.id("name")).sendKeys("Rahul Sharma");
             driver.findElement(By.name("age")).sendKeys("22");
@@ -19,6 +19,9 @@ public class RecommendationFormTest {
             new Select(driver.findElement(By.id("category"))).selectByVisibleText("SC");
             new Select(driver.findElement(By.id("state"))).selectByVisibleText("All India (Central)");
             driver.findElement(By.id("submitBtn")).click();
+
+            // Wait for results.html to load and fetch data from server
+            Thread.sleep(3000);
 
             WebElement table = driver.findElement(By.xpath("//table[@id='resultsTable']"));
             System.out.println("Results table visible: " + table.isDisplayed());

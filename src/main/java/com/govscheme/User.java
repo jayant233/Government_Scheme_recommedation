@@ -1,3 +1,5 @@
+package com.govscheme;
+
 // A citizen who checks scheme eligibility.
 public class User extends Person implements Eligible {
     private double income;
@@ -33,3 +35,4 @@ public class User extends Person implements Eligible {
     public String getState() { return state; }
     public void setState(String state) { this.state = state; }
 }
+

@@ -9,7 +9,7 @@ public class HomeAndAdminPageTest {
         WebDriver driver = new ChromeDriver();
         try {
             // Change this path only if the project folder is moved.
-            String homeUrl = "file:///C:/Users/jay23/Desktop/GovernmentSchemeRecommendationSystem/web/index.html";
+            String homeUrl = "file:///C:/Users/jay23/Desktop/mainGR/web/index.html";
             driver.get(homeUrl);
             System.out.println("Home title: " + driver.getTitle());
 

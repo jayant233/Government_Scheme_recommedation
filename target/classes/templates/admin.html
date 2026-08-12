@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Government Schemes</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <style>
+        .admin-form { border: 1px solid #ddd; padding: 15px; margin-top: 15px; display: none; background: #f9f9f9; border-radius: 5px; }
+        .admin-form input { margin-bottom: 10px; width: 100%; box-sizing: border-box; padding: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container wide">
+        <h1 id="adminTitle">Admin Management Portal</h1>
+
+        <p th:if="${error}" th:text="${error}" style="color: #fff; background: #e74c3c; padding: 10px 15px; border-radius: 5px; margin-bottom: 10px;"></p>
+        <p th:if="${success}" th:text="${success}" style="color: #fff; background: #27ae60; padding: 10px 15px; border-radius: 5px; margin-bottom: 10px;"></p>
+
+        <div class="admin-actions" style="display:flex; gap:10px; margin-bottom: 20px;">
+            <button onclick="document.getElementById('addForm').style.display='block'; document.getElementById('updateForm').style.display='none'; document.getElementById('deleteForm').style.display='none';" class="btn action-btn">Add New Scheme</button>
+            <button onclick="document.getElementById('updateForm').style.display='block'; document.getElementById('addForm').style.display='none'; document.getElementById('deleteForm').style.display='none';" class="btn action-btn secondary">Update Scheme</button>
+            <button onclick="document.getElementById('deleteForm').style.display='block'; document.getElementById('addForm').style.display='none'; document.getElementById('updateForm').style.display='none';" class="btn action-btn danger">Delete Scheme</button>
+        </div>
+
+        <!-- HTML Form for Adding -->
+        <div id="addForm" class="admin-form">
+            <h3>Add New Scheme</h3>
+            <form th:action="@{/admin/add}" method="POST">
+                <input type="text" name="name" placeholder="Name" required>
+                <input type="number" name="minAge" placeholder="Min Age (e.g., 18)" required>
+                <input type="number" name="maxAge" placeholder="Max Age (e.g., 60)" required>
+                <input type="number" name="minIncome" placeholder="Min Income Limit (Rs.)" required>
+                <input type="number" name="maxIncome" placeholder="Max Income Limit (Rs.)" required>
+                <select name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="ALL">ALL (Any Gender)</option>
+                    <option th:each="g : ${genders}" th:value="${g}" th:text="${g}"></option>
+                </select>
+                <select name="occupation" required>
+                    <option value="">Select Occupation</option>
+                    <option value="ANY">ANY (Any Occupation)</option>
+                    <option th:each="o : ${occupations}" th:value="${o}" th:text="${o}"></option>
+                </select>
+                <select name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="ANY">ANY (Any Category)</option>
+                    <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
+                </select>
+                <select name="state" required>
+                    <option value="">Select State</option>
+                    <option th:each="state : ${states}" th:value="${state}" th:text="${state}"></option>
+                </select>
+                <input type="text" name="desc" placeholder="Description" required>
+                <button type="submit" class="btn">Submit to Database</button>
+                <button type="button" class="btn secondary" onclick="document.getElementById('addForm').style.display='none'">Cancel</button>
+            </form>
+        </div>
+
+        <!-- HTML Form for Updating -->
+        <div id="updateForm" class="admin-form">
+            <h3>Update Scheme Details</h3>
+            <form th:action="@{/admin/update}" method="POST">
+                <input type="number" name="id" placeholder="Scheme ID to Update" required>
+                <input type="text" name="name" placeholder="Updated Name" required>
+                <input type="number" name="minAge" placeholder="Updated Min Age (e.g., 18)" required>
+                <input type="number" name="maxAge" placeholder="Updated Max Age (e.g., 60)" required>
+                <input type="number" name="minIncome" placeholder="Updated Min Income Limit (Rs.)" required>
+                <input type="number" name="maxIncome" placeholder="Updated Max Income Limit (Rs.)" required>
+                <select name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="ALL">ALL (Any Gender)</option>
+                    <option th:each="g : ${genders}" th:value="${g}" th:text="${g}"></option>
+                </select>
+                <select name="occupation" required>
+                    <option value="">Select Occupation</option>
+                    <option value="ANY">ANY (Any Occupation)</option>
+                    <option th:each="o : ${occupations}" th:value="${o}" th:text="${o}"></option>
+                </select>
+                <select name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="ANY">ANY (Any Category)</option>
+                    <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
+                </select>
+                <select name="state" required>
+                    <option value="">Select State</option>
+                    <option th:each="state : ${states}" th:value="${state}" th:text="${state}"></option>
+                </select>
+                <input type="text" name="desc" placeholder="Updated Description" required>
+                <button type="submit" class="btn">Update Database</button>
+                <button type="button" class="btn secondary" onclick="document.getElementById('updateForm').style.display='none'">Cancel</button>
+            </form>
+        </div>
+
+        <!-- HTML Form for Deleting -->
+        <div id="deleteForm" class="admin-form">
+            <h3>Delete Scheme</h3>
+            <form th:action="@{/admin/delete}" method="POST">
+                <input type="number" name="id" placeholder="Enter Scheme ID to delete" required>
+                <button type="submit" class="btn danger">Delete from Database</button>
+                <button type="button" class="btn secondary" onclick="document.getElementById('deleteForm').style.display='none'">Cancel</button>
+            </form>
+        </div>
+
+        <table id="adminTable" class="styled-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Income Limit (Rs.)</th>
+                    <th>Gender</th>
+                    <th>Category</th>
+                    <th>State</th>
+                    <th>Desc</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="s : ${schemes}">
+                    <td th:text="${s.schemeId}"></td>
+                    <td th:text="${s.schemeName}"></td>
+                    <td th:text="${s.minAge + ' - ' + s.maxAge}"></td>
+                    <td th:text="${s.minIncome + ' - ' + s.maxIncome}"></td>
+                    <td th:text="${s.gender}"></td>
+                    <td th:text="${s.category}"></td>
+                    <td th:text="${s.state}"></td>
+                    <td th:text="${s.description}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(schemes)}">
+                    <td colspan="8" style="text-align:center;">No schemes found in the database.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="nav-link" style="margin-top: 20px;">
+            <a th:href="@{/}" id="homeLink" class="btn secondary">Return to User Homepage</a>
+        </div>
+    </div>
+</body>
+</html>

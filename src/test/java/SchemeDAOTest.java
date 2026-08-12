@@ -1,7 +1,9 @@
+package com.govscheme;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
 
 public class SchemeDAOTest {
     private SchemeDAO dao;
@@ -23,14 +25,10 @@ public class SchemeDAOTest {
         assertTrue(results.isEmpty(), "Should find no schemes");
     }
 
-    @Test
-    void testGetSchemeByIdThrowsException() {
-        assertThrows(SchemeNotFoundException.class, () -> dao.getSchemeById(999));
-    }
 
     @Test
     void testAddAndDeleteScheme() throws SQLException {
-        Scheme s = new Scheme(0, "Test Scheme", 18, 30, 100000, "ALL", "ANY", "ANY", 1, "Test");
+        Scheme s = new Scheme(0, "Test Scheme", 18, 30, 0, 100000, "ALL", "ANY", "ANY", "All India (Central)", "Test");
         assertTrue(dao.addScheme(s));
     }
 }

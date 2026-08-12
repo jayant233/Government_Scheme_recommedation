@@ -7,6 +7,9 @@ USE government_scheme_db;
 -- Start with fresh practice tables each time this file is run.
 DROP TABLE IF EXISTS Schemes;
 DROP TABLE IF EXISTS States;
+DROP TABLE IF EXISTS Genders;
+DROP TABLE IF EXISTS Occupations;
+DROP TABLE IF EXISTS Categories;
 
 -- States stores the state name used by a scheme.
 CREATE TABLE States (
@@ -22,36 +25,100 @@ CREATE TABLE Schemes (
     scheme_id INT AUTO_INCREMENT PRIMARY KEY,
     -- NOT NULL and UNIQUE: every scheme needs a different name.
     scheme_name VARCHAR(150) NOT NULL UNIQUE,
-    -- NOT NULL: every scheme needs an age range and income limit.
+    -- NOT NULL: every scheme needs an age range and income limit range.
     min_age INT NOT NULL,
     max_age INT NOT NULL,
+    min_income DOUBLE NOT NULL DEFAULT 0,
     max_income DOUBLE NOT NULL,
     -- DEFAULT 'ALL': use this when a scheme is open to every gender.
     gender VARCHAR(10) NOT NULL DEFAULT 'ALL',
     occupation VARCHAR(50) NOT NULL,
     category VARCHAR(50) NOT NULL,
-    -- FOREIGN KEY: the state ID must already exist in States.
-    state_id INT NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    CONSTRAINT fk_scheme_state FOREIGN KEY (state_id) REFERENCES States(state_id)
+    -- state: stores the name of the state
+    state VARCHAR(100) NOT NULL,
+    description VARCHAR(255) NOT NULL
 );
 
--- Insert three simple practice states.
+-- Genders table
+CREATE TABLE Genders (
+    gender_id INT AUTO_INCREMENT PRIMARY KEY,
+    gender_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Occupations table
+CREATE TABLE Occupations (
+    occupation_id INT AUTO_INCREMENT PRIMARY KEY,
+    occupation_name VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- Categories table
+CREATE TABLE Categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Insert all Indian states and UTs.
 INSERT INTO States (state_name) VALUES
 ('All India (Central)'),
+('Andhra Pradesh'),
+('Arunachal Pradesh'),
+('Assam'),
+('Bihar'),
+('Chhattisgarh'),
+('Goa'),
+('Gujarat'),
+('Haryana'),
+('Himachal Pradesh'),
+('Jharkhand'),
+('Karnataka'),
+('Kerala'),
+('Madhya Pradesh'),
 ('Maharashtra'),
-('Karnataka');
+('Manipur'),
+('Meghalaya'),
+('Mizoram'),
+('Nagaland'),
+('Odisha'),
+('Punjab'),
+('Rajasthan'),
+('Sikkim'),
+('Tamil Nadu'),
+('Telangana'),
+('Tripura'),
+('Uttar Pradesh'),
+('Uttarakhand'),
+('West Bengal'),
+('Andaman and Nicobar Islands'),
+('Chandigarh'),
+('Dadra and Nagar Haveli and Daman and Diu'),
+('Delhi'),
+('Jammu and Kashmir'),
+('Ladakh'),
+('Lakshadweep'),
+('Puducherry');
+
+-- Insert Genders
+INSERT INTO Genders (gender_name) VALUES
+('Male'), ('Female'), ('Other');
+
+-- Insert Occupations
+INSERT INTO Occupations (occupation_name) VALUES
+('Student'), ('Self-Employed'), ('Businessman'), ('Farmer'), ('Unemployed');
+
+-- Insert Categories
+INSERT INTO Categories (category_name) VALUES
+('General'), ('OBC'), ('SC'), ('ST'), ('Others');
 
 -- Insert four schemes. ANY means that rule applies to every value.
-INSERT INTO Schemes (scheme_name, min_age, max_age, max_income, gender, occupation, category, state_id, description) VALUES
-('PM Kisan Samman Nidhi', 18, 70, 300000, 'ALL', 'Farmer', 'ANY', 1, 'Income support for farmers.'),
-('Post Matric Scholarship', 15, 30, 250000, 'ALL', 'Student', 'SC', 1, 'Scholarship for SC students.'),
-('Maharashtra Girl Education', 15, 25, 500000, 'Female', 'Student', 'ANY', 2, 'Support for girl students.'),
-('Karnataka Farmer Support', 18, 65, 400000, 'ALL', 'Farmer', 'ANY', 3, 'Support for Karnataka farmers.');
+INSERT INTO Schemes (scheme_name, min_age, max_age, min_income, max_income, gender, occupation, category, state, description) VALUES
+('PM Kisan Samman Nidhi', 18, 70, 0, 300000, 'ALL', 'Farmer', 'ANY', 'All India (Central)', 'Income support for farmers.'),
+('Post Matric Scholarship', 15, 30, 0, 250000, 'ALL', 'Student', 'SC', 'All India (Central)', 'Scholarship for SC students.'),
+('Maharashtra Girl Education', 15, 25, 0, 500000, 'Female', 'Student', 'ANY', 'Maharashtra', 'Support for girl students.'),
+('Karnataka Farmer Support', 18, 65, 0, 400000, 'ALL', 'Farmer', 'ANY', 'Karnataka', 'Support for Karnataka farmers.');
 
 -- CRUD INSERT: add one scheme when practising.
--- INSERT INTO Schemes (scheme_name, min_age, max_age, max_income, occupation, category, state_id, description)
--- VALUES ('Practice Scheme', 18, 60, 200000, 'ANY', 'ANY', 1, 'Practice record.');
+-- INSERT INTO Schemes (scheme_name, min_age, max_age, min_income, max_income, occupation, category, state, description)
+-- VALUES ('Practice Scheme', 18, 60, 0, 200000, 'ANY', 'ANY', 'All India (Central)', 'Practice record.');
 
 -- CRUD SELECT: view all schemes.
 SELECT * FROM Schemes;
@@ -62,42 +129,42 @@ SELECT * FROM Schemes;
 -- CRUD DELETE: remove one scheme when practising.
 -- DELETE FROM Schemes WHERE scheme_id = 4;
 
--- INNER JOIN: show each scheme with its state name.
-SELECT s.scheme_name, st.state_name
-FROM Schemes s INNER JOIN States st ON s.state_id = st.state_id;
+-- INNER JOIN: no longer needed since state is stored directly in Schemes, but here is a simple SELECT.
+SELECT scheme_name, state
+FROM Schemes;
 
 -- WHERE: find schemes for a 22-year-old male SC student earning Rs. 200000.
 SELECT scheme_name FROM Schemes
 WHERE 22 BETWEEN min_age AND max_age
-  AND 200000 <= max_income
+  AND 200000 BETWEEN min_income AND max_income
   AND (gender = 'ALL' OR gender = 'Male')
   AND (category = 'ANY' OR category = 'SC')
   AND (occupation = 'ANY' OR occupation = 'Student')
-  AND state_id IN (SELECT state_id FROM States WHERE state_name = 'All India (Central)');
+  AND state IN ('All India (Central)');
 
 -- GROUP BY: count schemes in each state.
-SELECT st.state_name, COUNT(s.scheme_id) AS total_schemes
-FROM States st LEFT JOIN Schemes s ON st.state_id = s.state_id
-GROUP BY st.state_name;
+SELECT state, COUNT(scheme_id) AS total_schemes
+FROM Schemes
+GROUP BY state;
 
 -- HAVING: show states with more than one scheme.
-SELECT st.state_name, COUNT(s.scheme_id) AS total_schemes
-FROM States st INNER JOIN Schemes s ON st.state_id = s.state_id
-GROUP BY st.state_name HAVING COUNT(s.scheme_id) > 1;
+SELECT state, COUNT(scheme_id) AS total_schemes
+FROM Schemes
+GROUP BY state HAVING COUNT(scheme_id) > 1;
 
--- Aggregate functions: summarise the income limits.
-SELECT COUNT(*) AS total, AVG(max_income) AS average_limit, MAX(max_income) AS highest_limit,
-       MIN(max_income) AS lowest_limit, SUM(max_income) AS income_limit_sum
+-- Aggregate functions: summarise the min and max income limits.
+SELECT COUNT(*) AS total, AVG(min_income) AS avg_min_income, AVG(max_income) AS avg_max_income,
+       MAX(max_income) AS highest_limit, MIN(min_income) AS lowest_limit
 FROM Schemes;
 
--- Subquery: find the second highest income limit.
+-- Subquery: find the second highest max income limit.
 SELECT MAX(max_income) AS second_highest
 FROM Schemes WHERE max_income < (SELECT MAX(max_income) FROM Schemes);
 
--- EXISTS: find states that have at least one scheme.
-SELECT state_name FROM States st
-WHERE EXISTS (SELECT 1 FROM Schemes s WHERE s.state_id = st.state_id);
+-- EXISTS: check if there are any schemes in Maharashtra.
+SELECT state FROM Schemes
+WHERE state = 'Maharashtra' AND EXISTS (SELECT 1 FROM Schemes WHERE state = 'Maharashtra');
 
 -- IN: find schemes available in Central or Maharashtra.
 SELECT scheme_name FROM Schemes
-WHERE state_id IN (1, 2);
+WHERE state IN ('All India (Central)', 'Maharashtra');
