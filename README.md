@@ -130,10 +130,9 @@ Government_Scheme_Recommendation/
 │       ├── HomePageTest.java                      # TC01–TC04: title, URL, form fields, navigation
 │       ├── RecommendationFormTest.java            # TC05–TC09: form submission, results, validation
 │       └── AdminPortalTest.java                   # TC10–TC15: CRUD operations, table display
-│
-└── selenium/                                      # Standalone Selenium scripts (no JUnit)
-    ├── HomeAndAdminPageTest.java
-    └── RecommendationFormTest.java
+
+
+        
 ```
 
 ---
